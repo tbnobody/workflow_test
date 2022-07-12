@@ -18,6 +18,8 @@ jobs:
             ${{ runner.os }}-pip-
 
       - uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
 
       - name: Install PlatformIO
         run: |
@@ -58,6 +60,8 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
 
       - name: Install PlatformIO
         run: |
