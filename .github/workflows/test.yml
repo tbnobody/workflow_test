@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: Cache pip
         uses: actions/cache@v2
         with:
@@ -15,15 +16,19 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+
       - uses: actions/setup-python@v2
+
       - name: Install PlatformIO
         run: |
           python -m pip install --upgrade pip
           pip install --upgrade platformio
+
       - name: Get default environments
         id: envs
         run: |
           echo "::set-output name=environments::$(pio project config --json-output | jq -cr '.[0][1][0][1]')"
+
     outputs:
       environments: ${{ steps.envs.outputs.environments }}
 
@@ -36,6 +41,7 @@ jobs:
         environment: ${{ fromJSON(needs.get_default_envs.outputs.environments) }}
     steps:
       - uses: actions/checkout@v2
+
       - name: Cache pip
         uses: actions/cache@v3
         with:
@@ -43,30 +49,40 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+
       - name: Cache PlatformIO
         uses: actions/cache@v3
         with:
           path: ~/.platformio
           key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
       - name: Set up Python
         uses: actions/setup-python@v2
+
       - name: Install PlatformIO
         run: |
           python -m pip install --upgrade pip
           pip install --upgrade platformio
-      - uses: borales/actions-yarn@v3.0.0
+
+      - name: Install WebApp dependencies
+        uses: borales/actions-yarn@v3.0.0
         with:
-          cmd: --cwd webapp install # will run `yarn install` command
-      - uses: borales/actions-yarn@v3.0.0
+          cmd: --cwd webapp install
+
+      - name: Build WebApp
+        uses: borales/actions-yarn@v3.0.0
         with:
-          cmd: --cwd webapp build # will run `yarn build` command
+          cmd: --cwd webapp build
+
       - name: Build firmware
         run: pio run -e ${{ matrix.environment }}
+
       - uses: actions/upload-artifact@v2
         with:
           name: firmware-${{ matrix.environment }}
           path: |
             .pio/build/${{ matrix.environment }}/firmware.bin
+
       - uses: actions/upload-artifact@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
@@ -82,6 +98,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: firmware-release
+
       - name: Create draft release
         uses: softprops/action-gh-release@v1
         with:
