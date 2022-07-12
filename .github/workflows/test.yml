@@ -68,9 +68,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install --upgrade platformio
 
-      - uses: actions/setup-node@v3
+      - name: Setup Node.js and yarn
+        uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: "18"
           cache: "yarn"
           cache-dependency-path: "webapp/yarn.lock"
 
