@@ -1,4 +1,4 @@
-name: OpenDTU
+name: OpenDTU Build
 
 on: [push, pull_request]
 
@@ -68,15 +68,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install --upgrade platformio
 
-      - name: Install WebApp dependencies
-        uses: borales/actions-yarn@v3.0.0
+      - uses: actions/setup-node@v3
         with:
-          cmd: --cwd webapp install
+          node-version: '16'
+          cache: 'yarn'
+
+      - name: Install WebApp dependencies
+        run: yarn --cwd webapp install --frozen-lockfile
 
       - name: Build WebApp
-        uses: borales/actions-yarn@v3.0.0
-        with:
-          cmd: --cwd webapp build
+        run: yarn --cwd webapp build
 
       - name: Build firmware
         run: pio run -e ${{ matrix.environment }}
